@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            background-image: url("images/weather.jpg");
+            height: 100vh;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-position: top center;
+            font-family: Arial, Helvetica, sans-serif;
+            background-size: cover;
+        }
+        .main{
+            width: 50vh;
+            margin: 100px auto;
+            background-color: rgba(240,248,255,0.6);
+            padding: 20px;
+            text-align: center;
+        }
+        .main>*{
+            margin-bottom: 20px;
+        }
+        .input{
+            width: 100%;
+            background-color: rgba(255,255,255,0.6);
+            border: none;
+            outline: none;
+            color: #582233;
+            font-size: 1.2rem;
+            height: 50px;
+            border-radius: 15px;
+            padding: 0 10px;
+            text-align: center;
+        }
+        .body{
+            display: none;
+            color: #582233;
+            padding: 20px;
+            line-height: 2rem;
+            border-radius: 15px;
+            background-color: rgba(255,255,255,0.6);
+            height: 50vh;
+        }
+        .detalls{
+            font-weight: bold;
+        }
+        .status{
+            padding: 20px;
+        }
+        .temp{
+            font-size: 50pt;
+            font-weight: 700;
+            margin: 20px 0;;
+            text-shadow: 2px 4px rgba(0,0,0,0.3);
+        }
+       .min,.weather,.city,.date,.wind{
+            font-size: 12pt;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        h1{
+            text-shadow: 2px 2px 1px orange,4px 4px 1px blue,6px 6px 1px green,8px 8px 1px rgb(77, 52, 165);
+            font-size: 80px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .images{
+            width: 35px;
+            margin-left: 30px;
+        }
+        #not{
+            font-weight: 900;
+            font-size: xx-large;
+        }
+    </style>
+</head>
+<body>
+    <!--<h1 align="center"  > <marquee behavior="alternate" scrollamount="10" direction="right"><b><font size="10"> Get Weather Report</font></b></marquee></h1>-->
+    <div class="main">
+        <div class="search">
+            <input type="text" class="input" placeholder="Enter City Name..."id="inpute">
+        </div>
+        <div id="not"></div>
+        <div class="body">
+           <div class="detalls">
+               <div class="city" id="city"> city name ( IN )  </div>
+                <div class="date" id="date">00 month(day),year</div>
+           </div>
+           <div class="status">
+               <div class="temp" id="temp">00&deg;C </div> 
+               <div class="min" id="min_max">00&deg;C (min) /00&deg;C (max)</div>
+               <div class="weather" id="weather">Clouds </div>
+               <div class="wind" id="wind">Wind (SP.) : 00 Km/Hour</div>
+           </div>
+        </div>
+    </div>
+    
+        <script type="text/javascript">
+           const searchInputBox=document.getElementById('inpute');
+           searchInputBox.addEventListener('keypress',(event)=>{
+                if(event.keyCode == 13){
+                    console.log(searchInputBox.value);
+                    getweatherReport(searchInputBox.value);
+                    document.querySelector('.body').style.display="block";
+                }
+                
+            });
+            function getweatherReport(city){
+                
+                fetch('https://api.openweathermap.org/data/2.5/weather?q='+city+'&appid=f62125394708e998dd9dc81c829e261e&units=metric')
+                .then(weather=>{
+                    return weather.json();
+                }).then(showeatherReport);
+                
+            }
+            
+            function showeatherReport(weather){
+                console.log(weather);
+                if(weather.cod=='404'){
+                let code=document.getElementById('city');
+                code.innerHTML="city not found";
+                return;
+               }
+                let City=document.getElementById("city");
+                City.innerText=weather.name +' '+'('+weather.sys.country+')';
+                let Temp=document.getElementById('temp');
+                Temp.innerHTML=Math.round(weather.main.temp) +'&deg;C';
+                let minmax=document.getElementById('min_max');
+                minmax.innerHTML=weather.main.temp_min +'&deg;C (min) / '+weather.main.temp_max +'&deg;C(max)';
+                let weathertype=document.getElementById('weather');
+                weathertype.innerHTML=weather.weather[0].main;
+                let datetype=document.getElementById('date');
+                let todaydate=new Date();
+                datetype.innerText=dateManage(todaydate);
+                let windType=document.getElementById('wind');
+                windType.innerHTML='Wind (SP.) : '+weather.wind.speed+' Km/Hour';
+                if(weathertype.textContent=='Clear'){
+                    document.body.style.backgroundImage="url('images/clear.jpg')";
+                }else if(weathertype.textContent=='Fog'){
+                    document.body.style.backgroundImage="url('images/fog.jpg')";
+                }else if(weathertype.textContent=='Clouds'){
+                    document.body.style.backgroundImage="url('images/claudy.jpg')";
+                }else if(weathertype.textContent=='Rain'){
+                    document.body.style.backgroundImage="url('images/rainy.jpg')";
+                }else if(weathertype.textContent=='Snow'){
+                    document.body.style.backgroundImage="url('images/snow.jpg')";
+                }else if(weathertype.textContent=='Smoke'){
+                    document.body.style.backgroundImage="url('images/smoke.jpg')";
+                }else if(weathertype.textContent=='Mist'){
+                    document.body.style.backgroundImage="url('images/mist.jpg')";
+                }else if(weathertype.textContent=='Haze'){
+                    document.body.style.backgroundImage="url('images/haze.jpg')";
+                }   
+            }  
+            function dateManage(dateType){
+                let days=["SUN","MON","TUE","WED","THUR","FRI","SATU"];
+                let months=["January","February","March"," April","May","June","July","August","September","October","November"," December"];
+                let year=dateType.getFullYear();
+                let month=months[dateType.getMonth()];
+                let date=dateType.getDate();
+                let day=days[dateType.getDay()];
+                return date+' '+month+' '+'('+day+')'+' '+ year;
+            }
+
+        </script>
+    </body>
+</html>
